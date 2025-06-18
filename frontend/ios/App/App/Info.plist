@@ -45,5 +45,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>MyCookup needs access to your camera to take photos of your cooking and recipes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MyCookup needs access to your photo library to save and select photos for your recipes.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>MyCookup needs permission to save photos to your photo library.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

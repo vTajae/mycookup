@@ -10,4 +10,5 @@
 .mf
 .wrangler
 .dev.vars*
+wrangler.toml
 

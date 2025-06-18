@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router";
-import { Home } from "./routes/Home";
+import { Home, Notifications } from "./routes";
 
 export function App() {
   return (
@@ -7,6 +7,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Routes>
     </BrowserRouter>
   );
