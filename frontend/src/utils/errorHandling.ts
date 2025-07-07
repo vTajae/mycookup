@@ -266,6 +266,48 @@ export const ERROR_CODES = {
     severity: 'medium' as const
   },
 
+  // iOS Safari Web Push Specific Errors
+  IOS_PWA_NOT_INSTALLED: {
+    code: 'IOS_PWA_NOT_INSTALLED',
+    message: 'iOS requires PWA to be installed to home screen',
+    userMessage: 'iOS Safari Web Push requires the PWA to be installed to your home screen first.',
+    recoveryActions: [
+      'Tap the Share button in Safari',
+      'Scroll down and tap "Add to Home Screen"',
+      'Tap "Add" to confirm',
+      'Open the app from your home screen (not Safari)',
+      'Then try subscribing to notifications'
+    ],
+    severity: 'high' as const
+  },
+
+  IOS_PERMISSION_DENIED_REINSTALL_REQUIRED: {
+    code: 'IOS_PERMISSION_DENIED_REINSTALL_REQUIRED',
+    message: 'iOS permission denied - PWA reinstall required',
+    userMessage: 'iOS Safari Web Push permission was denied. The PWA must be removed and re-added to home screen.',
+    recoveryActions: [
+      'Remove this app from your home screen (long press → Remove App)',
+      'Clear Safari cache (Settings → Safari → Clear History and Website Data)',
+      'Visit the website again in Safari',
+      'Add to home screen again',
+      'Open from home screen and try subscribing again'
+    ],
+    severity: 'high' as const
+  },
+
+  IOS_NOT_OPENED_FROM_HOME_SCREEN: {
+    code: 'IOS_NOT_OPENED_FROM_HOME_SCREEN',
+    message: 'iOS app must be opened from home screen',
+    userMessage: 'For iOS push notifications to work, you must open the app from your home screen, not from Safari.',
+    recoveryActions: [
+      'Close Safari',
+      'Find the app icon on your home screen',
+      'Tap the app icon to open it',
+      'Try subscribing to notifications again'
+    ],
+    severity: 'high' as const
+  },
+
   // Generic Errors
   UNKNOWN_ERROR: {
     code: 'UNKNOWN_ERROR',

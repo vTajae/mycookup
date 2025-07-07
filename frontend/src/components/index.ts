@@ -5,3 +5,7 @@ export { NotificationTester } from './NotificationTester';
 export type { NotificationTesterProps } from './NotificationTester';
 
 export { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
+
+export { EnhancedDebugInterface } from './EnhancedDebugInterface';
+
+export { IOSPWAStandaloneTest } from './IOSPWAStandaloneTest';

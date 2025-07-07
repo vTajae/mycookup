@@ -1,0 +1,49 @@
+{
+  "passed": 6,
+  "failed": 0,
+  "warnings": 1,
+  "tests": [
+    {
+      "name": "Capacitor Config",
+      "status": "pass",
+      "message": "Capacitor is properly configured",
+      "details": "App ID: true, Web Dir: true, Plugins: true"
+    },
+    {
+      "name": "Capacitor Plugins",
+      "status": "pass",
+      "message": "Found 4 Capacitor plugins",
+      "details": "Installed: @capacitor/camera (Camera plugin), @capacitor/push-notifications (Push notifications plugin), @capacitor/app (App plugin)..."
+    },
+    {
+      "name": "Camera Integration",
+      "status": "pass",
+      "message": "Camera functionality detected",
+      "details": "Service: false, Usage: true"
+    },
+    {
+      "name": "Push Notifications",
+      "status": "pass",
+      "message": "Push notification integration found",
+      "details": "OneSignal: true, Capacitor Push: true"
+    },
+    {
+      "name": "WebSocket-Capacitor Integration",
+      "status": "pass",
+      "message": "WebSocket logging is well integrated with mobile features",
+      "details": "Features: Camera(true), Push(true), Network(true), Device(false)"
+    },
+    {
+      "name": "iOS Platform",
+      "status": "pass",
+      "message": "iOS platform is properly set up",
+      "details": "All 3 required files found"
+    },
+    {
+      "name": "Service Worker",
+      "status": "warning",
+      "message": "No Service Worker found",
+      "details": "Service Worker logging will work when implemented"
+    }
+  ]
+}

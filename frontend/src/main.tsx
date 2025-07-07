@@ -5,12 +5,46 @@ import "./app.css";
 // Initialize PWA Elements for Capacitor web support
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
-// Initialize OneSignal service
-import { oneSignalService } from './services';
+// Initialize OneSignal service and logging systems
+import { oneSignalService, debugLogger, unifiedLoggingService } from './services';
+import { iosLoggingService } from './services/iosLoggingService';
+import { initializeAllLoggingIntegrations } from './services/loggingIntegration';
+import { webSocketLoggingIntegration } from './services/webSocketLoggingIntegration';
+import { initializeLoggingCompatibility } from './services/loggingCompatibility';
 
 // Initialize application services
 async function initializeApp() {
   try {
+    // Initialize iOS logging service first for comprehensive logging
+    iosLoggingService.initialize({
+      captureConsole: true,
+      captureNetwork: true,
+      captureErrors: true,
+      flushInterval: 3000, // Flush every 3 seconds for development
+    });
+
+    // Initialize unified logging service first
+    unifiedLoggingService.initialize();
+    unifiedLoggingService.info('app', 'Application initialization started', {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    });
+
+    // Initialize all logging integrations (includes WebSocket integration)
+    initializeAllLoggingIntegrations();
+
+    // Initialize logging compatibility layer
+    initializeLoggingCompatibility();
+
+    // Test logging systems to ensure they're working
+    setTimeout(() => {
+      unifiedLoggingService.info('app', 'Logging systems integration test', {
+        systems: unifiedLoggingService.getStatus(),
+        environment: window.location.hostname
+      });
+    }, 2000);
+
     // Call the PWA element loader after the platform has been bootstrapped
     defineCustomElements(window);
 
@@ -18,21 +52,26 @@ async function initializeApp() {
     render(<App />, document.getElementById("app")!);
 
     // Initialize OneSignal service after app renders (non-blocking)
-    console.log('Initializing OneSignal service...');
+    unifiedLoggingService.info('app', 'Initializing OneSignal service...');
     oneSignalService.initialize()
       .then((oneSignalInitialized) => {
         if (oneSignalInitialized) {
-          console.log('OneSignal service initialized successfully');
+          unifiedLoggingService.logPushNotification('info', 'OneSignal service initialized successfully');
         } else {
-          console.warn('OneSignal service failed to initialize');
+          unifiedLoggingService.logPushNotification('warn', 'OneSignal service failed to initialize');
         }
       })
       .catch((error) => {
-        console.error('OneSignal initialization error:', error);
+        unifiedLoggingService.logPushNotification('error', 'OneSignal initialization error', { error });
       });
 
   } catch (error) {
-    console.error('Failed to initialize application:', error);
+    // Use unified logging for error reporting
+    if (unifiedLoggingService.isInitialized()) {
+      unifiedLoggingService.emergency('Failed to initialize application', { error });
+    } else {
+      console.error('Failed to initialize application:', error);
+    }
 
     // Still render the app even if other services fail
     render(<App />, document.getElementById("app")!);

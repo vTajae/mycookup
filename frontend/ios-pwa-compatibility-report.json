@@ -1,0 +1,63 @@
+{
+  "passed": 6,
+  "failed": 2,
+  "warnings": 0,
+  "tests": [
+    {
+      "name": "File Structure",
+      "status": "fail",
+      "message": "Missing 1 required files",
+      "details": "Missing: debug-console.js",
+      "timestamp": "2025-06-20T21:11:16.803Z"
+    },
+    {
+      "name": "Capacitor Integration",
+      "status": "pass",
+      "message": "Capacitor configuration is properly set up",
+      "details": "App ID and web directory configured, server config found",
+      "timestamp": "2025-06-20T21:11:16.804Z"
+    },
+    {
+      "name": "PWA Manifest",
+      "status": "pass",
+      "message": "PWA manifest is properly configured",
+      "details": "Display mode: standalone (standalone compatible)",
+      "timestamp": "2025-06-20T21:11:16.806Z"
+    },
+    {
+      "name": "WebSocket Configuration",
+      "status": "pass",
+      "message": "WebSocket URLs are properly configured",
+      "details": "Found 4 valid WebSocket URLs",
+      "timestamp": "2025-06-20T21:11:16.807Z"
+    },
+    {
+      "name": "Service Integration",
+      "status": "pass",
+      "message": "Logging services are properly integrated",
+      "details": "Unified logging: true, WebSocket: true, Integration: true",
+      "timestamp": "2025-06-20T21:11:16.808Z"
+    },
+    {
+      "name": "iOS Compatibility",
+      "status": "pass",
+      "message": "All iOS compatibility features implemented",
+      "details": "3/3 features found",
+      "timestamp": "2025-06-20T21:11:16.810Z"
+    },
+    {
+      "name": "Debug Console",
+      "status": "fail",
+      "message": "Debug console tools are incomplete",
+      "details": "Missing: Node.js console ",
+      "timestamp": "2025-06-20T21:11:16.810Z"
+    },
+    {
+      "name": "Worker Deployment",
+      "status": "pass",
+      "message": "Worker deployment files are present",
+      "details": "Worker: true, Config: true, Script: true",
+      "timestamp": "2025-06-20T21:11:16.811Z"
+    }
+  ]
+}

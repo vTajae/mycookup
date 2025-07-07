@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local WebSocket Logging Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .test-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔌 Local WebSocket Logging Test</h1>
+        <p>Testing WebSocket logging with local worker at ws://localhost:8787/ws</p>
+    </div>
+
+    <div class="container">
+        <h2>Connection Status</h2>
+        <div id="status" class="status disconnected">
+            <strong>Status:</strong> Disconnected
+        </div>
+        <button id="connectBtn" class="test-button">Connect to WebSocket</button>
+        <button id="disconnectBtn" class="test-button" disabled>Disconnect</button>
+    </div>
+
+    <div class="grid">
+        <div class="container">
+            <h3>Test Console Logging</h3>
+            <button class="test-button" onclick="testConsoleLog()">Console Log</button>
+            <button class="test-button" onclick="testConsoleWarn()">Console Warn</button>
+            <button class="test-button" onclick="testConsoleError()">Console Error</button>
+            <button class="test-button" onclick="testConsoleInfo()">Console Info</button>
+        </div>
+
+        <div class="container">
+            <h3>Test PWA Features</h3>
+            <button class="test-button" onclick="testServiceWorker()">Service Worker</button>
+            <button class="test-button" onclick="testNotifications()">Notifications</button>
+            <button class="test-button" onclick="testCamera()">Camera</button>
+            <button class="test-button" onclick="testNetwork()">Network Request</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>WebSocket Messages</h2>
+        <button class="test-button" onclick="clearOutput()">Clear Output</button>
+        <div id="output" class="output">
+            WebSocket Logging Test Ready
+            Click "Connect to WebSocket" to start testing...
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let isConnected = false;
+
+        const statusEl = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const outputEl = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            outputEl.innerHTML += `\n[${timestamp}] ${prefix} ${message}`;
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            isConnected = connected;
+            if (connected) {
+                statusEl.className = 'status connected';
+                statusEl.innerHTML = '<strong>Status:</strong> Connected to ws://localhost:8787/ws';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusEl.className = 'status disconnected';
+                statusEl.innerHTML = '<strong>Status:</strong> Disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function connectWebSocket() {
+            if (ws) {
+                ws.close();
+            }
+
+            log('Connecting to ws://localhost:8787/ws...', 'info');
+            
+            ws = new WebSocket('ws://localhost:8787/ws');
+
+            ws.onopen = () => {
+                log('✅ Connected to WebSocket server', 'success');
+                updateStatus(true);
+                
+                // Enable console interception
+                interceptConsole();
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    log(`📨 Received: ${JSON.stringify(data, null, 2)}`, 'info');
+                } catch (error) {
+                    log(`📨 Received: ${event.data}`, 'info');
+                }
+            };
+
+            ws.onclose = () => {
+                log('❌ WebSocket connection closed', 'error');
+                updateStatus(false);
+            };
+
+            ws.onerror = (error) => {
+                log(`❌ WebSocket error: ${error}`, 'error');
+                updateStatus(false);
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function sendLog(level, message, extra = {}) {
+            if (!ws || !isConnected) {
+                log('❌ Not connected to WebSocket', 'error');
+                return;
+            }
+
+            const logMessage = {
+                type: 'log',
+                level: level,
+                message: message,
+                timestamp: new Date().toISOString(),
+                source: 'test-page',
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                ...extra
+            };
+
+            ws.send(JSON.stringify(logMessage));
+            log(`📤 Sent ${level}: ${message}`, 'info');
+        }
+
+        function interceptConsole() {
+            const originalLog = console.log;
+            const originalWarn = console.warn;
+            const originalError = console.error;
+            const originalInfo = console.info;
+
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                sendLog('log', args.join(' '));
+            };
+
+            console.warn = function(...args) {
+                originalWarn.apply(console, args);
+                sendLog('warn', args.join(' '));
+            };
+
+            console.error = function(...args) {
+                originalError.apply(console, args);
+                sendLog('error', args.join(' '));
+            };
+
+            console.info = function(...args) {
+                originalInfo.apply(console, args);
+                sendLog('info', args.join(' '));
+            };
+
+            log('✅ Console interception enabled', 'success');
+        }
+
+        function clearOutput() {
+            outputEl.innerHTML = 'Output cleared.\n';
+        }
+
+        // Test functions
+        function testConsoleLog() {
+            console.log('Test console.log message from local test page');
+        }
+
+        function testConsoleWarn() {
+            console.warn('Test console.warn message from local test page');
+        }
+
+        function testConsoleError() {
+            console.error('Test console.error message from local test page');
+        }
+
+        function testConsoleInfo() {
+            console.info('Test console.info message from local test page');
+        }
+
+        function testServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service worker registered successfully');
+                        sendLog('info', 'Service worker registered', { scope: registration.scope });
+                    })
+                    .catch(error => {
+                        console.error('Service worker registration failed:', error);
+                        sendLog('error', 'Service worker registration failed', { error: error.message });
+                    });
+            } else {
+                console.warn('Service workers not supported');
+                sendLog('warn', 'Service workers not supported');
+            }
+        }
+
+        function testNotifications() {
+            if ('Notification' in window) {
+                console.log('Current notification permission:', Notification.permission);
+                sendLog('info', 'Notification permission check', { permission: Notification.permission });
+                
+                Notification.requestPermission()
+                    .then(permission => {
+                        console.log('Notification permission result:', permission);
+                        sendLog('info', 'Notification permission result', { permission });
+                    })
+                    .catch(error => {
+                        console.error('Notification permission error:', error);
+                        sendLog('error', 'Notification permission error', { error: error.message });
+                    });
+            } else {
+                console.warn('Notifications not supported');
+                sendLog('warn', 'Notifications not supported');
+            }
+        }
+
+        function testCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                console.log('Testing camera access...');
+                sendLog('info', 'Testing camera access');
+                
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        console.log('Camera access granted');
+                        sendLog('info', 'Camera access granted');
+                        // Stop the stream immediately
+                        stream.getTracks().forEach(track => track.stop());
+                    })
+                    .catch(error => {
+                        console.error('Camera access denied:', error);
+                        sendLog('error', 'Camera access denied', { error: error.message });
+                    });
+            } else {
+                console.warn('Camera API not supported');
+                sendLog('warn', 'Camera API not supported');
+            }
+        }
+
+        function testNetwork() {
+            console.log('Testing network request...');
+            sendLog('info', 'Testing network request');
+            
+            fetch('/api/test')
+                .then(response => {
+                    console.log('Network request successful:', response.status);
+                    sendLog('info', 'Network request successful', { status: response.status });
+                })
+                .catch(error => {
+                    console.error('Network request failed:', error);
+                    sendLog('error', 'Network request failed', { error: error.message });
+                });
+        }
+
+        // Event listeners
+        connectBtn.addEventListener('click', connectWebSocket);
+        disconnectBtn.addEventListener('click', disconnectWebSocket);
+
+        // Initialize
+        log('Local WebSocket Logging Test initialized', 'success');
+        log('Ready to test WebSocket logging functionality', 'info');
+    </script>
+</body>
+</html>

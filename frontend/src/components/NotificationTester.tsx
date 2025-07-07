@@ -3,7 +3,7 @@ import { useOneSignal } from "../hooks/useOneSignal";
 import { OneSignalError } from "../utils/errorHandling";
 
 export interface NotificationTesterProps {
-  onSubscriptionChange?: (subscribed: boolean) => void;
+  onSubscriptionChange?: (subscribed: boolean, userDetails?: { userId?: string; pushToken?: string }) => void;
   onError?: (error: string) => void;
   className?: string;
   showDetails?: boolean;
@@ -95,7 +95,11 @@ export function NotificationTester({
     const success = await subscribeUser();
 
     if (success) {
-      onSubscriptionChange?.(true);
+      // Pass user details to parent component for prominent display
+      onSubscriptionChange?.(true, {
+        userId: user.userId,
+        pushToken: user.pushToken
+      });
       setActionStatus('success');
       setLastActionTime(new Date());
     } else if (error) {
@@ -107,9 +111,12 @@ export function NotificationTester({
   const handleUnsubscribe = async () => {
     clearError();
     const success = await unsubscribeUser();
-    
+
     if (success) {
-      onSubscriptionChange?.(false);
+      onSubscriptionChange?.(false, {
+        userId: user.userId,
+        pushToken: user.pushToken
+      });
     } else if (error) {
       onError?.(error);
     }
@@ -601,19 +608,51 @@ export function NotificationTester({
               </span>
             </div>
             {user.userId && (
-              <div className="grid grid-cols-2 gap-2">
-                <span className="text-gray-600 dark:text-gray-400">User ID:</span>
-                <span className="text-gray-900 dark:text-gray-100 font-mono text-xs break-all">
+              <div className="col-span-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                    🆔 OneSignal User ID
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.userId!).then(() => {
+                        alert('User ID copied to clipboard!');
+                      }).catch(() => {
+                        alert(`User ID: ${user.userId}`);
+                      });
+                    }}
+                    className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200"
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+                <div className="font-mono text-xs text-blue-800 dark:text-blue-200 break-all bg-white dark:bg-blue-950 p-2 rounded border">
                   {user.userId}
-                </span>
+                </div>
               </div>
             )}
             {user.pushToken && (
-              <div className="grid grid-cols-2 gap-2">
-                <span className="text-gray-600 dark:text-gray-400">Push Token:</span>
-                <span className="text-gray-900 dark:text-gray-100 font-mono text-xs break-all">
-                  {user.pushToken.substring(0, 20)}...
-                </span>
+              <div className="col-span-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-green-800 dark:text-green-200">
+                    🔑 Push Token
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.pushToken!).then(() => {
+                        alert('Push token copied to clipboard!');
+                      }).catch(() => {
+                        alert(`Push Token: ${user.pushToken}`);
+                      });
+                    }}
+                    className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 dark:bg-green-800 dark:text-green-200"
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+                <div className="font-mono text-xs text-green-800 dark:text-green-200 break-all bg-white dark:bg-green-950 p-2 rounded border max-h-16 overflow-y-auto">
+                  {user.pushToken}
+                </div>
               </div>
             )}
           </div>

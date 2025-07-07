@@ -1,0 +1,16 @@
+
+> deploy:websocket:local
+> ./scripts/deploy-websocket-worker.sh local
+
+[0;34m[INFO][0m Starting WebSocket worker deployment...
+[0;34m[INFO][0m Environment: local
+
+[0;34m[INFO][0m Checking prerequisites...
+[0;32m[SUCCESS][0m Prerequisites check passed
+[0;34m[INFO][0m Deploying WebSocket worker to 'local' environment...
+[0;34m[INFO][0m Starting local development server...
+
+ ⛅️ wrangler 4.20.1 (update available 4.20.5)
+─────────────────────────────────────────────
+⎔ Starting local server...
+[wrangler:info] Ready on http://localhost:8787

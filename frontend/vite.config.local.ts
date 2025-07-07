@@ -2,12 +2,9 @@ import preact from "@preact/preset-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-// import basicSsl from '@vitejs/plugin-basic-ssl';
-import mkcert from 'vite-plugin-mkcert'
 
 export default defineConfig({
   plugins: [
-    mkcert() ,
     preact({
       // Enable React compatibility mode
       devtoolsInProd: false,
@@ -26,10 +23,7 @@ export default defineConfig({
     outDir: "build",
   },
   server: {
-    https: {
-    key: './localhost+2-key.pem',
-    cert: './localhost+2.pem'
-  },
+    port: 5173,
     host: true, // Allow external connections
     // Ensure service workers are served with correct MIME type
     headers: {

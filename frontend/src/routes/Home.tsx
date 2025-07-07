@@ -24,12 +24,18 @@ export function Home() {
       {/* Navigation Section */}
       <section className="px-4 pb-4">
         <div className="max-w-md mx-auto">
-          <div className="flex justify-center">
+          <div className="flex justify-center space-x-4">
             <Link
               to="/notifications"
               className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               🔔 Test Notifications
+            </Link>
+            <Link
+              to="/debug-logs"
+              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600"
+            >
+              📱 Debug Logs
             </Link>
           </div>
         </div>

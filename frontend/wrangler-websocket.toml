@@ -1,0 +1,37 @@
+# Cloudflare Worker configuration for WebSocket Logger
+# This is a separate worker from the main PWA deployment
+
+name = "mycookup-websocket-logger"
+main = "websocket-logger-worker.js"
+compatibility_date = "2025-04-04"
+
+# Worker-specific configuration
+[env.production]
+name = "mycookup-websocket-logger"
+vars = { NODE_ENV = "production" }
+
+[env.development]
+name = "mycookup-websocket-logger-dev"
+vars = { NODE_ENV = "development" }
+
+# Enable observability for debugging
+[observability]
+enabled = true
+
+# No KV, D1, or other bindings needed for this simple logger
+# The worker only handles WebSocket connections and message broadcasting
+
+# Deployment configuration
+[build]
+command = ""
+cwd = ""
+watch_dir = ""
+
+# Route configuration (optional - can be set via dashboard)
+# routes = [
+#   { pattern = "wss://your-domain.com/ws", zone_name = "your-domain.com" }
+# ]
+
+# Environment variables for different stages
+# Development: mycookup-websocket-logger-dev.your-subdomain.workers.dev
+# Production: mycookup-websocket-logger.your-subdomain.workers.dev

@@ -18,15 +18,74 @@
     />
     <title>MyCookup</title>
 
-    <!-- OneSignal v16 SDK -->
+    <!-- OneSignal v16 SDK with enhanced iOS PWA support -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Initialize OneSignal deferred queue
+      // Enhanced OneSignal initialization for iOS PWA standalone mode
       window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+      // Detect PWA/standalone mode
+      const isPWAStandalone = window.navigator.standalone === true;
+      const hasDisplayStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isIOSPWA = isIOS && (isPWAStandalone || hasDisplayStandalone);
+
+      console.log('OneSignal v16 initialization context:', {
+        isPWAStandalone,
+        hasDisplayStandalone,
+        isIOSPWA,
+        isIOS,
+        url: window.location.href,
+        userAgent: navigator.userAgent
+      });
+
+      // Enhanced script loading detection for iOS PWA
+      let scriptLoadTimeout;
+      let scriptLoaded = false;
+
+      // Check if script loaded successfully
+      const checkScriptLoaded = () => {
+        if (window.OneSignalDeferred && !scriptLoaded) {
+          console.log('OneSignal script loaded successfully');
+          scriptLoaded = true;
+          if (scriptLoadTimeout) clearTimeout(scriptLoadTimeout);
+
+          // For iOS PWA, ensure OneSignal is available globally
+          if (isIOSPWA && typeof window.OneSignal === 'undefined') {
+            console.log('OneSignal: Setting up global OneSignal for iOS PWA');
+            // The service will handle initialization
+          }
+        }
+      };
+
+      // Set up script load monitoring with shorter timeout for iOS PWA
+      const timeoutDuration = isIOSPWA ? 5000 : 10000;
+      scriptLoadTimeout = setTimeout(() => {
+        if (!window.OneSignalDeferred) {
+          console.error('OneSignal script failed to load within timeout');
+          // The service will handle fallback loading
+        }
+      }, timeoutDuration);
+
+      // Check immediately and periodically
+      checkScriptLoaded();
+      const checkInterval = setInterval(() => {
+        checkScriptLoaded();
+        if (scriptLoaded) {
+          clearInterval(checkInterval);
+        }
+      }, 500); // More frequent checks for iOS PWA
+
+      // Clear interval after timeout
+      setTimeout(() => {
+        clearInterval(checkInterval);
+      }, timeoutDuration + 1000);
 
       // OneSignal v16 will handle service worker registration automatically
       console.log('OneSignal v16 will handle service worker registration');

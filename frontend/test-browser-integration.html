@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Logging System - Browser Integration Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .test-button.warning {
+            background: #ff9800;
+        }
+        .test-button.danger {
+            background: #f44336;
+        }
+        .output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 WebSocket Logging System - Browser Integration Test</h1>
+        <p>Testing iOS PWA WebSocket logging functionality in development environment</p>
+        <p><strong>PWA URL:</strong> https://development.mycookup.pages.dev</p>
+    </div>
+
+    <div class="container">
+        <h2>📊 System Status</h2>
+        <div id="systemStatus" class="status warning">
+            <strong>Status:</strong> Checking system availability...
+        </div>
+        <button class="test-button" onclick="checkSystemStatus()">🔍 Check System Status</button>
+        <button class="test-button" onclick="testGlobalHelpers()">🔧 Test Global Helpers</button>
+        <button class="test-button" onclick="clearOutput()">🗑️ Clear Output</button>
+    </div>
+
+    <div class="grid">
+        <div class="container">
+            <h3>🔌 WebSocket Logger Tests</h3>
+            <div class="test-section">
+                <h4>Connection Management</h4>
+                <button class="test-button" onclick="testWebSocketStatus()">📊 Check Status</button>
+                <button class="test-button" onclick="testWebSocketConnect()">🔗 Connect</button>
+                <button class="test-button" onclick="testWebSocketTest()">🧪 Send Test</button>
+                <button class="test-button warning" onclick="testWebSocketEnable()">⚡ Enable</button>
+                <button class="test-button danger" onclick="testWebSocketDisable()">❌ Disable</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>🎯 Unified Logger Tests</h3>
+            <div class="test-section">
+                <h4>System Integration</h4>
+                <button class="test-button" onclick="testUnifiedStatus()">📊 Status</button>
+                <button class="test-button" onclick="testUnifiedTest()">🧪 Test All</button>
+                <button class="test-button" onclick="testUnifiedEmergency()">🚨 Emergency</button>
+                <button class="test-button" onclick="testUnifiedLevels()">📝 Log Levels</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>🐛 Debug Interface Tests</h3>
+            <div class="test-section">
+                <h4>Component Testing</h4>
+                <button class="test-button" onclick="testDebugStatus()">📊 Status</button>
+                <button class="test-button" onclick="testDebugServiceWorker()">⚙️ Service Worker</button>
+                <button class="test-button" onclick="testDebugPushNotifications()">📱 Push Notifications</button>
+                <button class="test-button" onclick="testDebugCamera()">📷 Camera</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>📱 iOS PWA Tests</h3>
+            <div class="test-section">
+                <h4>PWA Features</h4>
+                <button class="test-button" onclick="testPWADetection()">🔍 PWA Detection</button>
+                <button class="test-button" onclick="testServiceWorker()">⚙️ Service Worker</button>
+                <button class="test-button" onclick="testNotificationPermission()">📱 Notifications</button>
+                <button class="test-button" onclick="testCameraAccess()">📷 Camera</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Test Output</h2>
+        <div id="output" class="output">
+            Welcome to WebSocket Logging System Browser Integration Test!
+            
+            This test page demonstrates the WebSocket logging functionality
+            that's integrated into the PWA at https://development.mycookup.pages.dev
+            
+            Click the buttons above to test different aspects of the logging system.
+            
+            Note: Some features require the WebSocket worker to be deployed.
+            Current status shows placeholder URLs which is expected before deployment.
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📚 Quick Reference</h2>
+        <div class="code">
+// Available in browser console:
+wsLogger.status()                 // WebSocket connection status
+wsLogger.enable()                 // Enable WebSocket logging
+unifiedLogger.test()              // Test all logging systems
+loggingDebug.status()             // Complete system status
+
+// Enable WebSocket logging for session:
+wsLogger.enable()
+location.reload()
+
+// Test PWA features:
+navigator.serviceWorker.register('/sw.js')
+Notification.requestPermission()
+navigator.mediaDevices.getUserMedia({ video: true })
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            output.innerHTML += `\n[${timestamp}] ${prefix} ${message}`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = 'Output cleared.\n';
+        }
+
+        function updateSystemStatus(status, type) {
+            const statusEl = document.getElementById('systemStatus');
+            statusEl.className = `status ${type}`;
+            statusEl.innerHTML = `<strong>Status:</strong> ${status}`;
+        }
+
+        function checkSystemStatus() {
+            log('Checking system status...', 'info');
+            
+            // Check if we're in the PWA environment
+            const isPWA = window.location.hostname === 'development.mycookup.pages.dev';
+            const hasWebSocketLogger = typeof window.wsLogger !== 'undefined';
+            const hasUnifiedLogger = typeof window.unifiedLogger !== 'undefined';
+            const hasLoggingDebug = typeof window.loggingDebug !== 'undefined';
+            
+            if (isPWA) {
+                log('✅ Running in PWA environment', 'success');
+                updateSystemStatus('PWA Environment Detected', 'success');
+            } else {
+                log('⚠️ Not running in PWA environment', 'warning');
+                updateSystemStatus('Test Environment (not PWA)', 'warning');
+            }
+            
+            log(`WebSocket Logger available: ${hasWebSocketLogger}`, hasWebSocketLogger ? 'success' : 'warning');
+            log(`Unified Logger available: ${hasUnifiedLogger}`, hasUnifiedLogger ? 'success' : 'warning');
+            log(`Debug Interface available: ${hasLoggingDebug}`, hasLoggingDebug ? 'success' : 'warning');
+            
+            if (!hasWebSocketLogger && !hasUnifiedLogger && !hasLoggingDebug) {
+                log('❌ No logging systems detected. This test should be run in the PWA environment.', 'error');
+                updateSystemStatus('No logging systems detected', 'error');
+            }
+        }
+
+        function testGlobalHelpers() {
+            log('Testing global helper availability...', 'info');
+            
+            const helpers = [
+                'wsLogger',
+                'unifiedLogger', 
+                'loggingDebug'
+            ];
+            
+            helpers.forEach(helper => {
+                if (typeof window[helper] !== 'undefined') {
+                    log(`✅ ${helper} is available`, 'success');
+                    if (typeof window[helper].status === 'function') {
+                        log(`  - ${helper}.status() method available`, 'info');
+                    }
+                } else {
+                    log(`⚠️ ${helper} is not available`, 'warning');
+                }
+            });
+        }
+
+        // WebSocket Logger Tests
+        function testWebSocketStatus() {
+            log('Testing wsLogger.status()...', 'info');
+            if (typeof window.wsLogger !== 'undefined' && typeof window.wsLogger.status === 'function') {
+                try {
+                    const status = window.wsLogger.status();
+                    log(`WebSocket Logger Status: ${JSON.stringify(status, null, 2)}`, 'success');
+                } catch (error) {
+                    log(`Error calling wsLogger.status(): ${error.message}`, 'error');
+                }
+            } else {
+                log('wsLogger.status() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testWebSocketConnect() {
+            log('Testing wsLogger.connect()...', 'info');
+            if (typeof window.wsLogger !== 'undefined' && typeof window.wsLogger.connect === 'function') {
+                try {
+                    window.wsLogger.connect();
+                    log('WebSocket connect initiated', 'success');
+                } catch (error) {
+                    log(`Error calling wsLogger.connect(): ${error.message}`, 'error');
+                }
+            } else {
+                log('wsLogger.connect() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testWebSocketTest() {
+            log('Testing wsLogger.test()...', 'info');
+            if (typeof window.wsLogger !== 'undefined' && typeof window.wsLogger.test === 'function') {
+                try {
+                    window.wsLogger.test();
+                    log('WebSocket test message sent', 'success');
+                } catch (error) {
+                    log(`Error calling wsLogger.test(): ${error.message}`, 'error');
+                }
+            } else {
+                log('wsLogger.test() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testWebSocketEnable() {
+            log('Testing wsLogger.enable()...', 'info');
+            if (typeof window.wsLogger !== 'undefined' && typeof window.wsLogger.enable === 'function') {
+                try {
+                    window.wsLogger.enable();
+                    log('WebSocket logging enabled for session', 'success');
+                    log('Reload the page to activate WebSocket logging', 'info');
+                } catch (error) {
+                    log(`Error calling wsLogger.enable(): ${error.message}`, 'error');
+                }
+            } else {
+                log('wsLogger.enable() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testWebSocketDisable() {
+            log('Testing wsLogger.disable()...', 'info');
+            if (typeof window.wsLogger !== 'undefined' && typeof window.wsLogger.disable === 'function') {
+                try {
+                    window.wsLogger.disable();
+                    log('WebSocket logging disabled', 'success');
+                } catch (error) {
+                    log(`Error calling wsLogger.disable(): ${error.message}`, 'error');
+                }
+            } else {
+                log('wsLogger.disable() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        // Unified Logger Tests
+        function testUnifiedStatus() {
+            log('Testing unifiedLogger.status()...', 'info');
+            if (typeof window.unifiedLogger !== 'undefined' && typeof window.unifiedLogger.status === 'function') {
+                try {
+                    const status = window.unifiedLogger.status();
+                    log(`Unified Logger Status: ${JSON.stringify(status, null, 2)}`, 'success');
+                } catch (error) {
+                    log(`Error calling unifiedLogger.status(): ${error.message}`, 'error');
+                }
+            } else {
+                log('unifiedLogger.status() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testUnifiedTest() {
+            log('Testing unifiedLogger.test()...', 'info');
+            if (typeof window.unifiedLogger !== 'undefined' && typeof window.unifiedLogger.test === 'function') {
+                try {
+                    window.unifiedLogger.test();
+                    log('Unified logger test completed', 'success');
+                } catch (error) {
+                    log(`Error calling unifiedLogger.test(): ${error.message}`, 'error');
+                }
+            } else {
+                log('unifiedLogger.test() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testUnifiedEmergency() {
+            log('Testing unifiedLogger.emergency()...', 'info');
+            if (typeof window.unifiedLogger !== 'undefined' && typeof window.unifiedLogger.emergency === 'function') {
+                try {
+                    window.unifiedLogger.emergency('Test emergency message from browser integration test');
+                    log('Emergency message sent through unified logger', 'success');
+                } catch (error) {
+                    log(`Error calling unifiedLogger.emergency(): ${error.message}`, 'error');
+                }
+            } else {
+                log('unifiedLogger.emergency() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testUnifiedLevels() {
+            log('Testing unified logger levels...', 'info');
+            if (typeof window.unifiedLogger !== 'undefined') {
+                try {
+                    const levels = ['debug', 'info', 'warn', 'error'];
+                    levels.forEach(level => {
+                        if (typeof window.unifiedLogger[level] === 'function') {
+                            window.unifiedLogger[level](`Test ${level} message from browser integration test`);
+                            log(`✅ ${level} level test sent`, 'success');
+                        } else {
+                            log(`⚠️ ${level} level not available`, 'warning');
+                        }
+                    });
+                } catch (error) {
+                    log(`Error testing unified logger levels: ${error.message}`, 'error');
+                }
+            } else {
+                log('unifiedLogger not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        // Debug Interface Tests
+        function testDebugStatus() {
+            log('Testing loggingDebug.status()...', 'info');
+            if (typeof window.loggingDebug !== 'undefined' && typeof window.loggingDebug.status === 'function') {
+                try {
+                    const status = window.loggingDebug.status();
+                    log(`Debug Interface Status: ${JSON.stringify(status, null, 2)}`, 'success');
+                } catch (error) {
+                    log(`Error calling loggingDebug.status(): ${error.message}`, 'error');
+                }
+            } else {
+                log('loggingDebug.status() not available - run this test in the PWA environment', 'warning');
+            }
+        }
+
+        function testDebugServiceWorker() {
+            log('Testing service worker debug logging...', 'info');
+            if (typeof window.loggingDebug !== 'undefined' && window.loggingDebug.sw) {
+                try {
+                    window.loggingDebug.sw.info('Service worker test from browser integration');
+                    window.loggingDebug.sw.error('Service worker error test from browser integration');
+                    log('Service worker debug messages sent', 'success');
+                } catch (error) {
+                    log(`Error testing service worker debug: ${error.message}`, 'error');
+                }
+            } else {
+                log('Service worker debug interface not available', 'warning');
+            }
+        }
+
+        function testDebugPushNotifications() {
+            log('Testing push notification debug logging...', 'info');
+            if (typeof window.loggingDebug !== 'undefined' && window.loggingDebug.push) {
+                try {
+                    window.loggingDebug.push.info('Push notification test from browser integration');
+                    window.loggingDebug.push.debug('Push notification debug test from browser integration');
+                    log('Push notification debug messages sent', 'success');
+                } catch (error) {
+                    log(`Error testing push notification debug: ${error.message}`, 'error');
+                }
+            } else {
+                log('Push notification debug interface not available', 'warning');
+            }
+        }
+
+        function testDebugCamera() {
+            log('Testing camera debug logging...', 'info');
+            if (typeof window.loggingDebug !== 'undefined' && window.loggingDebug.camera) {
+                try {
+                    window.loggingDebug.camera.info('Camera test from browser integration');
+                    window.loggingDebug.camera.debug('Camera debug test from browser integration');
+                    log('Camera debug messages sent', 'success');
+                } catch (error) {
+                    log(`Error testing camera debug: ${error.message}`, 'error');
+                }
+            } else {
+                log('Camera debug interface not available', 'warning');
+            }
+        }
+
+        // PWA Feature Tests
+        function testPWADetection() {
+            log('Testing PWA detection...', 'info');
+            
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isInWebAppiOS = (window.navigator.standalone == true);
+            const isInWebAppChrome = (window.matchMedia('(display-mode: standalone)').matches);
+            
+            log(`Standalone mode: ${isStandalone}`, isStandalone ? 'success' : 'info');
+            log(`iOS web app: ${isInWebAppiOS}`, isInWebAppiOS ? 'success' : 'info');
+            log(`Chrome web app: ${isInWebAppChrome}`, isInWebAppChrome ? 'success' : 'info');
+            
+            const userAgent = navigator.userAgent;
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+            log(`iOS device: ${isIOS}`, isIOS ? 'success' : 'info');
+        }
+
+        function testServiceWorker() {
+            log('Testing service worker registration...', 'info');
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        log('✅ Service worker registered successfully', 'success');
+                        log(`Scope: ${registration.scope}`, 'info');
+                    })
+                    .catch(error => {
+                        log(`⚠️ Service worker registration failed: ${error.message}`, 'warning');
+                    });
+            } else {
+                log('❌ Service workers not supported', 'error');
+            }
+        }
+
+        function testNotificationPermission() {
+            log('Testing notification permission...', 'info');
+            if ('Notification' in window) {
+                log(`Current permission: ${Notification.permission}`, 'info');
+                Notification.requestPermission()
+                    .then(permission => {
+                        log(`Permission result: ${permission}`, permission === 'granted' ? 'success' : 'warning');
+                    })
+                    .catch(error => {
+                        log(`Permission request failed: ${error.message}`, 'error');
+                    });
+            } else {
+                log('❌ Notifications not supported', 'error');
+            }
+        }
+
+        function testCameraAccess() {
+            log('Testing camera access...', 'info');
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        log('✅ Camera access granted', 'success');
+                        // Stop the stream immediately
+                        stream.getTracks().forEach(track => track.stop());
+                    })
+                    .catch(error => {
+                        log(`⚠️ Camera access denied: ${error.message}`, 'warning');
+                    });
+            } else {
+                log('❌ Camera API not supported', 'error');
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            log('Browser Integration Test loaded', 'success');
+            log('Click "Check System Status" to begin testing', 'info');
+            
+            // Auto-check if we're in the PWA environment
+            if (window.location.hostname === 'development.mycookup.pages.dev') {
+                setTimeout(checkSystemStatus, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
